@@ -76,12 +76,12 @@ export default function App() {
     );
   }
 
-  function Details({ navigation, route }) {
-    return <Webview source={{ uri: route.params.data }}></Webview>;
+  function Details({ route, navigation }) {
+    return <Webview source={{ uri: route.params.detail }}></Webview>;
   }
 
-  function Preview({ navigation, route }) {
-    return <Webview source={{ uri: route.params.data }}></Webview>;
+  function Preview({ route, navigation }) {
+    return <Webview source={{ uri: route.params.preview }}></Webview>;
   }
 
   function SongList() {
@@ -148,13 +148,15 @@ export default function App() {
   ) {
     return (
       <Pressable
-        onPress={() => navigation.navigate("Details", { data: external_urls })}
+        onPress={() =>
+          navigation.navigate("Details", { detail: external_urls })
+        }
       >
         <View style={styles.track}>
           <Pressable
             onPress={(e) => {
               e.stopPropagation();
-              navigation.navigate("Preview", { data: preview_url });
+              navigation.navigate("Preview", { preview: preview_url });
             }}
           >
             <Ionicons name="md-play-circle" size={24} color={Colors.spotify} />
