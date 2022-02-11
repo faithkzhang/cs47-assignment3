@@ -15,6 +15,9 @@ import millisToMinutesAndSeconds from "./utils/millisToMinuteSeconds";
 import Colors from "./Themes/colors";
 import Images from "./Themes/images";
 import Songs from "./Songs";
+import { Webview } from "react-native-webview";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
 // Endpoints for authorizing with Spotify
 const discovery = {
@@ -96,17 +99,23 @@ export default function App() {
       </View>
     );
   }
-
+  console.log(tracks);
   const renderItem = (item) => (
-    <Songs
-      name={item.name}
-      url={item.album.images[0].url}
-      track_number={item.track_number}
-      album={item.album.name}
-      artists={item.artists[0].name}
-      duration={millisToMinutesAndSeconds(item.duration_ms)}
-      id={item.id}
-    />
+    <Pressable onPress={() => {
+      navigation.navigate('ItemDetail', {data: item}
+    )>
+      <Songs
+        name={item.name}
+        url={item.album.images[0].url}
+        track_number={item.track_number}
+        album={item.album.name}
+        artists={item.artists[0].name}
+        duration={millisToMinutesAndSeconds(item.duration_ms)}
+        id={item.id}
+        details={item.external_urls}
+        preview={item.preview_url}
+      />
+    </Pressable>
   );
 
   let contentDisplayed = null;

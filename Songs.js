@@ -1,19 +1,19 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import Colors from "./Themes/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
-export default function Songs({
-  name,
-  url,
-  track_number,
-  album,
-  artists,
-  duration,
-  id,
-}) {
+export default function Songs(
+  { name, url, track_number, album, artists, duration, id, details, preview },
+  { navigation }
+) {
   return (
     <View style={styles.track}>
-      <Text style={styles.tracknum}>{track_number}</Text>
+      <Pressable>
+        <Ionicons name="md-play-circle" size={24} color={Colors.spotify} />
+      </Pressable>
       <Image
         style={styles.image}
         source={{
@@ -85,5 +85,6 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
     justifyContent: "flex-start",
     marginHorizontal: 5,
+    marginLeft: 16,
   },
 });
