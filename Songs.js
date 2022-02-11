@@ -11,25 +11,36 @@ export default function Songs(
 ) {
   return (
     <View style={styles.track}>
-      <Pressable>
-        <Ionicons name="md-play-circle" size={24} color={Colors.spotify} />
-      </Pressable>
-      <Image
-        style={styles.image}
-        source={{
-          uri: url,
-        }}
-      />
-      <View>
-        <Text style={styles.name} numberOfLines={1}>
-          {name}
+      <Pressable
+        onPress={() =>
+          navigation.navigate("Details", { data: item.external_urls })
+        }
+      >
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            navigation.navigate("Preview", { data: item.preview_urls });
+          }}
+        >
+          <Ionicons name="md-play-circle" size={24} color={Colors.spotify} />
+        </Pressable>
+        <Image
+          style={styles.image}
+          source={{
+            uri: url,
+          }}
+        />
+        <View>
+          <Text style={styles.name} numberOfLines={1}>
+            {name}
+          </Text>
+          <Text style={styles.artist}>{artists}</Text>
+        </View>
+        <Text style={styles.album} numberOfLines={1}>
+          {album}
         </Text>
-        <Text style={styles.artist}>{artists}</Text>
-      </View>
-      <Text style={styles.album} numberOfLines={1}>
-        {album}
-      </Text>
-      <Text style={styles.duration}>{duration}</Text>
+        <Text style={styles.duration}>{duration}</Text>
+      </Pressable>
     </View>
   );
 }

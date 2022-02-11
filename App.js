@@ -14,10 +14,10 @@ import { REDIRECT_URI, SCOPES, CLIENT_ID, ALBUM_ID } from "./utils/constants";
 import millisToMinutesAndSeconds from "./utils/millisToMinuteSeconds";
 import Colors from "./Themes/colors";
 import Images from "./Themes/images";
-import Songs from "./Songs";
 import { Webview } from "react-native-webview";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { Ionicons } from "@expo/vector-icons";
 
 // Endpoints for authorizing with Spotify
 const discovery = {
@@ -60,23 +60,33 @@ export default function App() {
 
   function SpotifyAuthButton() {
     return (
-      <Pressable onPress={promptAsync} style={styles.button}>
-        <View style={styles.buttonContent}>
-          <Image
-            style={{ height: "100%", width: "8%", resizeMode: "contain" }}
-            source={Images.spotify}
-          />
-          <Text style={{ fontWeight: "bold", color: "white", fontSize: 12 }}>
-            CONNECT WITH SPOTIFY
-          </Text>
-        </View>
-      </Pressable>
+      <View style={styles.container}>
+        <Pressable onPress={promptAsync} style={styles.button}>
+          <View style={styles.buttonContent}>
+            <Image
+              style={{ height: "100%", width: "8%", resizeMode: "contain" }}
+              source={Images.spotify}
+            />
+            <Text style={{ fontWeight: "bold", color: "white", fontSize: 12 }}>
+              CONNECT WITH SPOTIFY
+            </Text>
+          </View>
+        </Pressable>
+      </View>
     );
+  }
+
+  function Details({ navigation, route }) {
+    return <Webview source={{ uri: route.params.data }}></Webview>;
+  }
+
+  function Preview({ navigation, route }) {
+    return <Webview source={{ uri: route.params.data }}></Webview>;
   }
 
   function SongList() {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Image
             style={{
@@ -96,38 +106,93 @@ export default function App() {
           renderItem={({ item }) => renderItem(item)}
           keyExtractor={(item) => item.id}
         />
-      </View>
+      </SafeAreaView>
     );
   }
-  console.log(tracks);
+
   const renderItem = (item) => (
-    <Pressable onPress={() => {
-      navigation.navigate('ItemDetail', {data: item}
-    )>
-      <Songs
-        name={item.name}
-        url={item.album.images[0].url}
-        track_number={item.track_number}
-        album={item.album.name}
-        artists={item.artists[0].name}
-        duration={millisToMinutesAndSeconds(item.duration_ms)}
-        id={item.id}
-        details={item.external_urls}
-        preview={item.preview_url}
-      />
-    </Pressable>
+    <Songs
+      name={item.name}
+      url={item.album.images[0].url}
+      track_number={item.track_number}
+      album={item.album.name}
+      artists={item.artists[0].name}
+      duration={millisToMinutesAndSeconds(item.duration_ms)}
+      id={item.id}
+      external_urls={item.external_urls}
+      preview_url={item.preview_url}
+    />
   );
 
   let contentDisplayed = null;
 
   if (token) {
-    contentDisplayed = <SongList />;
+    contentDisplayed = SongList;
   } else {
-    contentDisplayed = <SpotifyAuthButton />;
+    contentDisplayed = SpotifyAuthButton;
   }
 
+  function Songs(
+    {
+      name,
+      url,
+      track_number,
+      album,
+      artists,
+      duration,
+      id,
+      external_urls,
+      preview_url,
+    },
+    { navigation }
+  ) {
+    return (
+      <Pressable
+        onPress={() => navigation.navigate("Details", { data: external_urls })}
+      >
+        <View style={styles.track}>
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              navigation.navigate("Preview", { data: preview_url });
+            }}
+          >
+            <Ionicons name="md-play-circle" size={24} color={Colors.spotify} />
+          </Pressable>
+          <Image
+            style={styles.image}
+            source={{
+              uri: url,
+            }}
+          />
+          <View>
+            <Text style={styles.name} numberOfLines={1}>
+              {name}
+            </Text>
+            <Text style={styles.artist}>{artists}</Text>
+          </View>
+          <Text style={styles.album} numberOfLines={1}>
+            {album}
+          </Text>
+          <Text style={styles.duration}>{duration}</Text>
+        </View>
+      </Pressable>
+    );
+  }
+
+  const Stack = createStackNavigator();
   return (
-    <SafeAreaView style={styles.container}>{contentDisplayed}</SafeAreaView>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="contentDisplayed"
+          component={contentDisplayed}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="Details" component={Details} />
+        <Stack.Screen name="Preview" component={Preview} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -160,5 +225,58 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: "3%",
+  },
+
+  track: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    padding: "2%",
+    width: "100%",
+  },
+  tracknum: {
+    fontSize: 16,
+    color: Colors.gray,
+    justifyContent: "center",
+    alignContent: "center",
+    paddingHorizontal: "1%",
+    width: 25,
+    marginHorizontal: 5,
+  },
+  album: {
+    fontSize: 14,
+    color: "white",
+    width: 100,
+    justifyContent: "flex-start",
+    marginHorizontal: 5,
+  },
+  duration: {
+    fontSize: 14,
+    color: "white",
+    justifyContent: "flex-end",
+    flex: 1,
+  },
+  name: {
+    fontSize: 16,
+    color: "white",
+    justifyContent: "flex-start",
+    width: 110,
+    marginHorizontal: 5,
+  },
+  artist: {
+    fontSize: 14,
+    color: Colors.gray,
+    justifyContent: "flex-start",
+    width: 110,
+    marginHorizontal: 5,
+  },
+  image: {
+    width: 60,
+    height: 60,
+    resizeMode: "contain",
+    justifyContent: "flex-start",
+    marginHorizontal: 5,
+    marginLeft: 16,
   },
 });
